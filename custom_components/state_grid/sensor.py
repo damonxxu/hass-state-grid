@@ -232,6 +232,9 @@ class StateGridElectricitySensor(
             attributes["balance_date"] = balance.date if balance else None
             attributes["history_owe"] = balance.history_owe if balance else None
             attributes["penalty"] = balance.penalty if balance else None
+            attributes["bill_settled"] = (
+                None if balance is None or not balance.is_ment else balance.is_ment == "1"
+            )
         if self.entity_description.key == "latest_month_meter_reading":
             meter = self.usage.latest_month_meter
             attributes["reading_date"] = meter.day.isoformat() if meter else None

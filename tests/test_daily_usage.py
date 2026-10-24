@@ -198,6 +198,25 @@ def test_prepaid_balance_and_postpaid_amount_due_are_separate() -> None:
     assert postpaid.amount_due == 42.3
 
 
+def test_settled_postpaid_bill_has_no_amount_due() -> None:
+    settled = AccountBalance.from_api(
+        {
+            "consType": "0",
+            "sumMoney": "42.30",
+            "accountBalance": "10",
+            "historyOwe": "0",
+            "isMent": "1",
+        }
+    )
+    unsettled = AccountBalance.from_api(
+        {"consType": "0", "sumMoney": "42.30", "historyOwe": "0", "isMent": "0"}
+    )
+
+    assert settled.balance == 10.0
+    assert settled.amount_due == 0.0
+    assert unsettled.amount_due == 42.3
+
+
 def test_4006_is_device_verification_not_bad_password() -> None:
     with pytest.raises(StateGridDeviceVerificationRequired) as caught:
         StateGridAppApi._raise_for_error(

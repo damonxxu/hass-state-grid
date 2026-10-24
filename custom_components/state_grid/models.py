@@ -340,6 +340,7 @@ class AccountBalance:
     history_owe: float | None
     penalty: float | None
     date: str
+    is_ment: str = ""
 
     @classmethod
     def from_api(cls, value: Mapping[str, Any]) -> AccountBalance:
@@ -351,6 +352,7 @@ class AccountBalance:
             history_owe=_number(value.get("historyOwe")),
             penalty=_number(value.get("penalty")),
             date=str(value.get("date") or value.get("amtTime") or ""),
+            is_ment=str(value.get("isMent") or ""),
         )
 
     @property
@@ -365,7 +367,13 @@ class AccountBalance:
 
     @property
     def amount_due(self) -> float | None:
-        return self.sum_money if self.cons_type != "1" else None
+        if self.cons_type == "1":
+            return None
+        # Postpaid sumMoney keeps the last bill amount after it is paid;
+        # isMent == "1" marks the bill as settled.
+        if self.is_ment == "1":
+            return self.history_owe or 0.0
+        return self.sum_money
 
 
 @dataclass(frozen=True)
